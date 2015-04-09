@@ -1,18 +1,63 @@
 #include "http_socket.h"
 
+//Nicht öffentliche Vorwärtsdeklarationen
+void handle_client_connection(const int client_sock);
+char *receive_request(const int client_sock);
+void send_response(const char *response, const int client_sock);
+
 void handle_client_connection(const int client_sock) {
-    const int buffer_sz = 100;
+	char *request = NULL;
+	char *response = NULL;
+
+	//Request empfangen
+	request = receive_request(client_sock);
+	printf("Request: '%s'\n\n", request);
+
+    //Request parsen
+
+	//Dateien einlesen
+
+	//Response bauen
+//    sample response
+//    HTTP/1.1 200 OK
+//    Server: nginx/1.7.4
+//    Date: Mon, 30 Mar 2015 13:34:10 GMT
+//    Content-Type: text/html; charset=UTF-8
+//    Connection: close
+    time_t now;
+    time(&now);
+	char str_utc_time[sizeof "0000-00-00T00:00:00Z"];
+    strftime(str_utc_time, sizeof str_utc_time, "%FT%TZ", gmtime(&now));
+	char *response_tpl = "HTTP/1.0 200 OK\r\nConnection: close\r\n\r\n<html style=\"font-size:30pt;\">Hello World<br/>%s</html>\r\n";
+	response = realloc(response, strlen(str_utc_time) + strlen(response_tpl) + 1);
+	sprintf(response, response_tpl, str_utc_time);
+	printf("%s\n",response);
+
+	//Reponse senden
+	send_response(response, client_sock);
+
+    // Verbindung schliessen
+    if (-1 == close(client_sock)) { perror("Warning: Error closing client socket.\n"); }
+    else { printf("Connection closed.\n"); }
+
+    //dyn. Speicher freigeben
+    free(request);
+    free(response);
+}
+
+char *receive_request(const int client_sock) {
     const char *http_request_terminator = "\r\n\r\n";
     const size_t http_request_terminator_len = strlen(http_request_terminator);
-    char buffer[buffer_sz];  // Puffer fuer empfangene und zu sendende Daten
+    const int recv_buffer_sz = 100;
+    char recv_buffer[recv_buffer_sz];  // Puffer fuer empfangene und zu sendende Daten
     int bytes_received = -1; // Anzahl der empfangen Bytes
-    char *request = NULL;
     size_t request_sz = 1;
 
     // Request empfangen
+	char *request = NULL;
     char* request_end = NULL;
     do {
-		if ((bytes_received = recv(client_sock, buffer, buffer_sz, 0)) == -1) {
+		if ((bytes_received = recv(client_sock, recv_buffer, recv_buffer_sz, 0)) == -1) {
 			perror("Failed to receive additional data from client");
 			exit(EXIT_FAILURE);
 		}
@@ -21,7 +66,7 @@ void handle_client_connection(const int client_sock) {
     	size_t old_request_sz = request_sz;
     	request_sz += bytes_received;
     	request = realloc(request, request_sz);
-    	memcpy(request + old_request_sz - 1, buffer, bytes_received);
+    	memcpy(request + old_request_sz - 1, recv_buffer, bytes_received);
     	request[request_sz] = '\0';
     	//printf("Request bis jetzt: '%s'\n\n", request);
 
@@ -34,36 +79,21 @@ void handle_client_connection(const int client_sock) {
 			break;
 		}
     } while (bytes_received > 0);
-    printf("Request: '%s'\n\n", request);
 
-    //Request parsen
+    return request;
+}
 
-    //Reponse senden
-//    sample response
-//    HTTP/1.1 200 OK
-//    Server: nginx/1.7.4
-//    Date: Mon, 30 Mar 2015 13:34:10 GMT
-//    Content-Type: text/html; charset=UTF-8
-//    Connection: close
-
-    strcpy(buffer, "HTTP/1.0 200 OK\r\n\r\nHello World\r\n");
-    printf("Sending '%s' (%i) to Client\n", buffer, (int)strlen(buffer));
-	if (send(client_sock, buffer, strlen(buffer), 0) != strlen(buffer)) {
+void send_response(const char *response, const int client_sock) {
+    printf("Sending '%s' (%i) to Client\n", response, (int)strlen(response));
+	if (send(client_sock, response, strlen(response), 0) != strlen(response)) {
 		perror("Failed to send data to client\n");
 		exit(EXIT_FAILURE);
 	}
-
-    // Verbindung schliessen
-    if (-1 == close(client_sock)) { perror("Warning: Error closing client socket.\n"); }
-    else { printf("Connection closed.\n"); }
-
-    //Speicher freigeben
-    free(request);
 }
 
 // Ausbaustufe 4: Fehlerbehandlung (beliebig viele Verbindungen pro
 // Programmlauf, aber nur ein Verbindung zu einem Zeitpunkt)
-int do_socket(void) {
+int serve_http(void) {
   const int server_sock = socket(AF_INET, SOCK_STREAM, 0);
 
   //Serversocket erstellen
@@ -99,6 +129,7 @@ int do_socket(void) {
     }
     printf("Connection established.\n");
     handle_client_connection(client_sock);
+
   }
 
   if (close(server_sock) == -1) {

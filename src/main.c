@@ -6,7 +6,7 @@
 
 int main(void) {
 	//serversocket
-	return do_socket();
+	return serve_http();
 	//socketverbindung aufbauen
 	//daten aus verbindung lesen und in puffer speichern bis puffer voll oder \r\n\r\n empfangen wurde
 	//request parsen -> bei Fehler 501

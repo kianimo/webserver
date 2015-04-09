@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <time.h>
 
-int do_socket(void);
+int serve_http(void);
 
 #endif
