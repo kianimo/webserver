@@ -30,8 +30,4 @@ parsed_request_t *parse_request(char* request);
  */
 void free_parsed_request(parsed_request_t *parsed_request);
 
-
-
-
-
 #endif /* HTTP_REQUEST_H_ */

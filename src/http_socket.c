@@ -1,6 +1,7 @@
 #include "http_socket.h"
 #include "http_parser_callbacks.h"
 #include "http_response.h"
+#include "http_request.h"
 
 //Nicht öffentliche Vorwärtsdeklarationen
 void handle_client_connection(const int client_sock);
@@ -16,7 +17,7 @@ void handle_client_connection(const int client_sock) {
 	printf("Request: '%s'\n\n", request);
 
     //Request parsen todo: da kümmert sich Imma und liefert ein struct mit den Informationen
-	parse_request(request);
+	parsed_request_t *parsed_request = parse_request(request);
 
 	//Request verarbeiten
 	//in request_processor.c
@@ -57,6 +58,7 @@ void handle_client_connection(const int client_sock) {
 
     //dyn. Speicher freigeben
     //todo: für die structs entsprechende Funktionen zum Freigeben anlegen (da wo sie definiert sind) und hier dann aufrufen
+    free_parsed_request(parsed_request);
     free(request);
     free(response);
 }

@@ -22,12 +22,15 @@ parsed_request_t *parse_request(char* request)
 
 	parsed_request->method = parser.method;
 
-	return NULL;
+	return parsed_request;
 }
 
 void free_parsed_request(parsed_request_t *parsed_request)
 {
-	//TODO
+	if(parsed_request->request_url != NULL)
+		free(parsed_request->request_url);
+
+	free(parsed_request);
 }
 
 
