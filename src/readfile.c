@@ -20,13 +20,14 @@ char *fileToString(const char *path){
 
 	while((ch = fgetc(fp)) != EOF){
 		str[i] = ch;	
+		++i;
 	}
 	return str;
 }
 
 //int main(void){
 //	char *str = fileToString("test.txt");
-//	printf("\n %s", str);
+//	printf("%s", str);
 //	free(str);
 //	return EXIT_SUCCESS;
 //}
