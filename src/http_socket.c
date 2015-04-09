@@ -1,4 +1,5 @@
 #include "http_socket.h"
+#include "http_parser_callbacks.h"
 
 //Nicht öffentliche Vorwärtsdeklarationen
 void handle_client_connection(const int client_sock);
@@ -14,6 +15,9 @@ void handle_client_connection(const int client_sock) {
 	printf("Request: '%s'\n\n", request);
 
     //Request parsen
+	//TODO
+	parse_request(request);
+	//TODO
 
 	//Dateien einlesen
 
