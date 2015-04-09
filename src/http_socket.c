@@ -2,46 +2,49 @@
 
 void handle_client_connection(const int client_sock) {
     const int buffer_sz = 100;
+    const char *http_request_terminator = "\r\n\r\n";
+    const size_t http_request_terminator_len = strlen(http_request_terminator);
     char buffer[buffer_sz];  // Puffer fuer empfangene und zu sendende Daten
     int bytes_received = -1; // Anzahl der empfangen Bytes
     char *request = NULL;
     size_t request_sz = 1;
 
-    // Daten vom Client lesen
-    if ((bytes_received = recv(client_sock, buffer, buffer_sz, 0)) == -1) {
-      perror("Failed to receive initial data from client");
-      exit(EXIT_FAILURE);
-    }
-
-    // Daten zum Client senden und weitere Daten vom Client lesen
-    while (bytes_received > 0) {
-    	size_t old_request_sz = request_sz;
-    	request_sz += bytes_received;
-    	request = realloc(request, request_sz);
-    	memcpy(request + old_request_sz - 1, buffer, bytes_received);
-    	request[request_sz] = '\0';
-    	printf("Request: '%s'\n\n", request);
-
+    // Request empfangen
+    char* request_end = NULL;
+    do {
 		if ((bytes_received = recv(client_sock, buffer, buffer_sz, 0)) == -1) {
 			perror("Failed to receive additional data from client");
 			exit(EXIT_FAILURE);
 		}
 
-		if(request[request_sz]=='\n') {
-			printf("Request Ende");
+    	//Request-Puffer vergrößern, Inhalt des Empfangspuffers anhängen und terminieren
+    	size_t old_request_sz = request_sz;
+    	request_sz += bytes_received;
+    	request = realloc(request, request_sz);
+    	memcpy(request + old_request_sz - 1, buffer, bytes_received);
+    	request[request_sz] = '\0';
+    	//printf("Request bis jetzt: '%s'\n\n", request);
+
+    	//HTTP Requests enden mit einer leeren Zeile
+    	request_end = strstr(request, http_request_terminator);
+    	if(request_end) {
+    		//wir lesen keine weiteren Daten und verwerfen eventuell nachfolgende Daten (z.B. bei HTTP POST)
+    		request_end[http_request_terminator_len] = '\0';
+			printf("Request complete\n");
 			break;
 		}
-    }
+    } while (bytes_received > 0);
+    printf("Request: '%s'\n\n", request);
 
+    //Request parsen
 
+    //Reponse senden
+//    sample response
 //    HTTP/1.1 200 OK
 //    Server: nginx/1.7.4
 //    Date: Mon, 30 Mar 2015 13:34:10 GMT
 //    Content-Type: text/html; charset=UTF-8
-//    Transfer-Encoding: chunked
-//    Connection: keep-alive
-//    X-Powered-By: PHP/5.6.0
-
+//    Connection: close
 
     strcpy(buffer, "HTTP/1.0 200 OK\r\n\r\nHello World\r\n");
     printf("Sending '%s' (%i) to Client\n", buffer, (int)strlen(buffer));
@@ -54,6 +57,8 @@ void handle_client_connection(const int client_sock) {
     if (-1 == close(client_sock)) { perror("Warning: Error closing client socket.\n"); }
     else { printf("Connection closed.\n"); }
 
+    //Speicher freigeben
+    free(request);
 }
 
 // Ausbaustufe 4: Fehlerbehandlung (beliebig viele Verbindungen pro
