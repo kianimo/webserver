@@ -7,23 +7,34 @@ void send_response(const char *response, const int client_sock);
 
 void handle_client_connection(const int client_sock) {
 	char *request = NULL;
-	char *response = NULL;
+	char *response = NULL; //todo: zu response_t ändern
 
 	//Request empfangen
 	request = receive_request(client_sock);
 	printf("Request: '%s'\n\n", request);
 
-    //Request parsen
+    //Request parsen todo: da kümmert sich Imma und liefert ein struct mit den Informationen
 
-	//Dateien einlesen
+	//Request verarbeiten
+	//in request_processor.c
+	//response_t *response = process_request(const parsed_request_t * parsed_request); //todo: implementieren
+		//die Funktion soll tun:
+		//prüfen ob request vorhanden und vollständig
+		//prüfen ob requestmethode unterstützt (nur GET)
+		//je nach URL:
+		//Variante 1) url=/utc/plain oder /utc/json oder /utc/html -> liefern aktuelle UTC Zeit -> in time_ressource.c
+		//Variante 2) Datei von Festplatte ausliefern (Dateien aus ./htdocs/<angeforderte Ressource>) -> in file_ressource.c (readfile.c verwenden)
+		//		-> Datei existiert nicht -> Fehler 404
+		//		-> Datei existiert -> Response mit Status 200 und Inhalt der Datei
+		//liefert responsestruct mit: http-status-code, http-status-message, content (text, zeit, etc.)
 
-	//Response bauen
 //    sample response
 //    HTTP/1.1 200 OK
 //    Server: nginx/1.7.4
 //    Date: Mon, 30 Mar 2015 13:34:10 GMT
 //    Content-Type: text/html; charset=UTF-8
 //    Connection: close
+	//Test-Response, das wird später nicht mehr benötigt
     time_t now;
     time(&now);
 	char str_utc_time[sizeof "0000-00-00T00:00:00Z"];
@@ -34,13 +45,14 @@ void handle_client_connection(const int client_sock) {
 	printf("%s\n",response);
 
 	//Reponse senden
-	send_response(response, client_sock);
+	send_response(response, client_sock); //todo: reponse_t statt char verwenden!
 
     // Verbindung schliessen
     if (-1 == close(client_sock)) { perror("Warning: Error closing client socket.\n"); }
     else { printf("Connection closed.\n"); }
 
     //dyn. Speicher freigeben
+    //todo: für die structs entsprechende Funktionen zum Freigeben anlegen (da wo sie definiert sind) und hier dann aufrufen
     free(request);
     free(response);
 }
