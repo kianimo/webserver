@@ -1,5 +1,6 @@
 #include "http_socket.h"
 #include "http_parser_callbacks.h"
+#include "http_response.h"
 
 //Nicht öffentliche Vorwärtsdeklarationen
 void handle_client_connection(const int client_sock);
@@ -47,7 +48,8 @@ void handle_client_connection(const int client_sock) {
 	printf("%s\n",response);
 
 	//Reponse senden
-	send_response(response, client_sock); //todo: reponse_t statt char verwenden!
+	//response = build_http_response(response_t); //todo: response string aus dem request zusammenbauen
+	send_response(response, client_sock);
 
     // Verbindung schliessen
     if (-1 == close(client_sock)) { perror("Warning: Error closing client socket.\n"); }

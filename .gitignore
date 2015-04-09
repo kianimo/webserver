@@ -2,9 +2,6 @@
 Debug/
 bin/
 
-#Projectfiles
-.cproject
-
 # Compiled Object files
 *.slo
 *.lo
