@@ -13,19 +13,7 @@
 
 #include "http_parser.h"
 
-typedef struct parsed_request_t
-{
-		char *type;
-		char *request_url;
-		char *host;
-} parsed_request_t;
-
-parsed_request_t parsed_request;
-
-/**
- * Request parsen und geparste Informationen in die zurückgegebene Struktur legen
- */
-parsed_request_t *parse_request(char* request);
+http_parser_settings get_http_parser_callbacks();
 
 static int message_begin_cb(http_parser *p);
 

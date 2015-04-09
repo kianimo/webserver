@@ -6,24 +6,19 @@
  */
 
 #include "http_parser_callbacks.h"
+#include "http_request.h"
 
-parsed_request_t *parse_request(char* request)
+parsed_request_t *parsed_request = NULL;
+
+http_parser_settings get_http_parser_callbacks()
 {
 	http_parser_settings settings =
-			{ .on_message_begin = message_begin_cb, .on_header_field =
+	{ .on_message_begin = message_begin_cb, .on_header_field =
 					header_field_cb, .on_header_value = header_value_cb, .on_url =
 					request_url_cb, .on_status = 0, .on_body = request_body_cb,
 					.on_headers_complete = headers_complete_cb,
 					.on_message_complete = message_complete_cb };
-
-
-	http_parser parser;
-	http_parser_init(&parser, HTTP_REQUEST);
-
-	http_parser_execute(&parser, &settings, request, strlen(request)+1);
-
-	return NULL;
-
+	return settings;
 }
 
 static int message_begin_cb(http_parser *p)
@@ -33,11 +28,12 @@ static int message_begin_cb(http_parser *p)
 
 int request_url_cb(http_parser *p, const char *buf, size_t len)
 {
+		char *request_url = malloc(len + 1);
 
-//	request_url = malloc(len + 1);
-//
-//	strcpy(request_url, buf);
-//	request_url[len] = '\0';
+		strcpy(request_url, buf);
+		request_url[len] = '\0';
+
+		parsed_request->request_url = request_url;
 
 	return 0;
 }
