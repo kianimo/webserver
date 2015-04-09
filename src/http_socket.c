@@ -1,4 +1,5 @@
 #include "http_socket.h"
+#include "http_parser_callbacks.h"
 
 //Nicht öffentliche Vorwärtsdeklarationen
 void handle_client_connection(const int client_sock);
@@ -14,6 +15,7 @@ void handle_client_connection(const int client_sock) {
 	printf("Request: '%s'\n\n", request);
 
     //Request parsen todo: da kümmert sich Imma und liefert ein struct mit den Informationen
+	parse_request(request);
 
 	//Request verarbeiten
 	//in request_processor.c
