@@ -9,15 +9,11 @@
 #define HTTP_REQUEST_H_
 
 #include <stdlib.h>
-
-enum http_request_types
-{
-	GET, POST, HEAD, PUT, DELETE
-};
+#include "http_parser.h"
 
 typedef struct parsed_request_t
 {
-		enum http_request_types type;
+		enum http_method method;
 		char *request_url;
 		//char *host;
 } parsed_request_t;

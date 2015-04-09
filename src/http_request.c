@@ -20,6 +20,8 @@ parsed_request_t *parse_request(char* request)
 
 	http_parser_execute(&parser, &settings, request, strlen(request)+1);
 
+	parsed_request->method = parser.method;
+
 	return NULL;
 }
 
