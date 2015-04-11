@@ -13,11 +13,11 @@ void handle_client_connection(const int client_sock) {
 	char *response = NULL; //todo: zu response_t ändern
 
 	//Request empfangen
-	request = receive_request(client_sock);
+	request = receive_request(client_sock); //heap pointer
 	printf("Request: '%s'\n\n", request);
 
     //Request parsen todo: da kümmert sich Imma und liefert ein struct mit den Informationen
-	parsed_request_t *parsed_request = parse_request(request);
+	parsed_request_t *parsed_request = parse_request(request); //heap pointer
 
 	//Request verarbeiten
 	//in request_processor.c
@@ -39,17 +39,27 @@ void handle_client_connection(const int client_sock) {
 //    Content-Type: text/html; charset=UTF-8
 //    Connection: close
 	//Test-Response, das wird später nicht mehr benötigt
-    time_t now;
-    time(&now);
-	char str_utc_time[sizeof "0000-00-00T00:00:00Z"];
-    strftime(str_utc_time, sizeof str_utc_time, "%FT%TZ", gmtime(&now));
-	char *response_tpl = "HTTP/1.0 200 OK\r\nConnection: close\r\n\r\n<html style=\"font-size:30pt;\">Hello World<br/>%s</html>\r\n";
-	response = realloc(response, strlen(str_utc_time) + strlen(response_tpl) + 1);
-	sprintf(response, response_tpl, str_utc_time);
-	printf("%s\n",response);
+//    time_t now;
+//    time(&now);
+//	char str_utc_time[sizeof "0000-00-00T00:00:00Z"];
+//    strftime(str_utc_time, sizeof str_utc_time, "%FT%TZ", gmtime(&now));
+//	char *response_tpl = "HTTP/1.0 200 OK\r\nConnection: close\r\n\r\n<html style=\"font-size:30pt;\">Hello World<br/>%s</html>\r\n";
+//	response = realloc(response, strlen(str_utc_time) + strlen(response_tpl) + 1);
+//	sprintf(response, response_tpl, str_utc_time);
+//	printf("%s\n",response);
 
-	//Reponse senden
-	//response = build_http_response(response_t); //todo: response string aus dem request zusammenbauen
+	//Ein Beispielresponse...
+	response_t *response_data = malloc(sizeof(response_t));
+	response_data->status_code = 200;
+	char *status_message = "OK";
+	response_data->status_message = malloc(strlen(status_message)+1);
+	strcpy(response_data->status_message, status_message);
+	char *content = "Bums";
+	response_data->content = malloc(strlen(content)+1);
+	strcpy(response_data->content, content);
+
+	//Reponse String bauen und senden
+	response = build_http_response_str(response_data); //heap pointer
 	send_response(response, client_sock);
 
     // Verbindung schliessen
@@ -58,9 +68,10 @@ void handle_client_connection(const int client_sock) {
 
     //dyn. Speicher freigeben
     //todo: für die structs entsprechende Funktionen zum Freigeben anlegen (da wo sie definiert sind) und hier dann aufrufen
-    free_parsed_request(parsed_request);
-    free(request);
-    free(response);
+    free_parsed_request(parsed_request); parsed_request = NULL;
+    free(request); request = NULL;
+    free_response_t(response_data); response_data = NULL;
+    free(response); response = NULL;
 }
 
 char *receive_request(const int client_sock) {
