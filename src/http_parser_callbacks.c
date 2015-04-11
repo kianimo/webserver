@@ -28,12 +28,12 @@ static int message_begin_cb(http_parser *p)
 
 int request_url_cb(http_parser *p, const char *buf, size_t len)
 {
-		char *request_url = malloc(len + 1);
+	char *request_url = malloc(len + 1);
 
-		strcpy(request_url, buf);
-		request_url[len] = '\0';
+	strncpy(request_url, buf, len);
+	request_url[len] = '\0';
 
-		parsed_request->request_url = request_url;
+	parsed_request->request_url = request_url;
 
 	return 0;
 }
