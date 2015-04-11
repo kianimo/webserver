@@ -1,8 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "http_response.h"
 
 //ein Teil des Responses ist bei uns erstmal statisch
 #define HTTP_RESPONSE_TPL "HTTP/1.0 %i %s\r\nConnection: close\r\n\r\n%s\r\n"
 
+/**
+ * Erzeugt einen HTTP-Response-String auf dem Heap mit den Daten der übergebenen Struktur
+ */
 char *build_http_response_str(const response_t *response) {
 	char *response_str;
 	if(-1 == asprintf(&response_str, HTTP_RESPONSE_TPL, response->status_code, response->status_message, response->content)) {

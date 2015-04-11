@@ -1,9 +1,6 @@
 #ifndef HTTP_RESPONSE_H_
 #define HTTP_RESPONSE_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-
 typedef struct response_t {
 	int status_code;
 	char* status_message;
