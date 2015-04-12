@@ -17,8 +17,21 @@ char * getUTCtimeJSON()
 	time(&timeRaw);
 	struct tm locT = *localtime(&timeRaw);
 	/*yyyy-mm-ddThh:mm:ssZ - UTC date format*/
-	sprintf(jsonDate, "{\"time\": \"%d-%d-%dT%d:%d:%dZ\"}", 	locT.tm_year, locT.tm_mon,
-																locT.tm_wday, locT.tm_hour,
-																locT.tm_min, locT.tm_sec);
+	sprintf(jsonDate, "{\"time\": \"%d-%d-%dT%d:%d:%dZ\"}", locT.tm_year, locT.tm_mon,
+															locT.tm_wday, locT.tm_hour,
+															locT.tm_min, locT.tm_sec);
 	return jsonDate;
+}
+
+char * getUTCtimeHTML()
+{
+	char *htmlDate = malloc(UTC_TIME_SIZE);
+	time_t timeRaw;
+	time(&timeRaw);
+	struct tm locT = *localtime(&timeRaw);
+	/*yyyy-mm-ddThh:mm:ssZ - UTC date format*/
+	sprintf(htmlDate, "<p>time: \"%d-%d-%dT%d:%d:%dZ</p>", 	locT.tm_year, locT.tm_mon,
+															locT.tm_wday, locT.tm_hour,
+															locT.tm_min, locT.tm_sec);
+	return htmlDate;
 }
