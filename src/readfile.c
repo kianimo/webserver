@@ -23,11 +23,12 @@ char *fileToString(const char *path){
 		size = ftell(fp);
 		fseek(fp, 0L, SEEK_SET); // seek back to file start
 
-		char *str = malloc(size);
+		char *str = malloc(size+1);
 		while((ch = fgetc(fp)) != EOF){
 			str[i] = ch;	
 			++i;
 		}
+		str[i] = 0;
 		fclose(fp);
 		return str;
 	}
