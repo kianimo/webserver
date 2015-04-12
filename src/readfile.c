@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /**
 * Returns the content of a given file as *char.
@@ -28,6 +28,7 @@ char *fileToString(const char *path){
 			str[i] = ch;	
 			++i;
 		}
+		fclose(fp);
 		return str;
 	}
 }

@@ -12,12 +12,13 @@
 #include "http_socket.h"
 #include "http_request.h"
 #include "http_parser_callbacks.h"
+#include "http_request_processor.h"
 #include "http_response.h"
 
 //Nicht öffentliche Vorwärtsdeklarationen (static -> Funktionen sind nur innerhalb dieser Datei bekannt)
 static void handle_client_connection(const int client_sock);
 static char *receive_request(const int client_sock);
-static void send_response(const char *response, const int client_sock);
+static void send_response(const response_t *response_data, const int client_sock);
 
 /**
  * Erstellt einen Serversocket und nimmt bei Bedarf mehrere Verbindungen an,
@@ -75,68 +76,28 @@ static void handle_client_connection(const int client_sock) {
 	char *request_str = NULL;
 	parsed_request_t *parsed_request = NULL;
 	response_t *response_data = NULL;
-	char *response_str = NULL; //todo: zu response_t ändern
 
 	//Request empfangen
 	request_str = receive_request(client_sock); //heap pointer
 	printf("Request: '%s'\n\n", request_str);
 
-    //Request parsen todo: da kümmert sich Imma und liefert ein struct mit den Informationen
+    //Request parsen
 	parsed_request = parse_request(request_str); //heap pointer
 
 	//Request verarbeiten
-	//in request_processor.c
-	//response_t *response = process_request(const parsed_request_t * parsed_request); //todo: implementieren
-		//die Funktion soll tun:
-		//prüfen ob request vorhanden und vollständig
-		//prüfen ob requestmethode unterstützt (nur GET)
-		//je nach URL:
-		//Variante 1) url=/utc/plain oder /utc/json oder /utc/html -> liefern aktuelle UTC Zeit -> in time_ressource.c
-		//Variante 2) Datei von Festplatte ausliefern (Dateien aus ./htdocs/<angeforderte Ressource>) -> in file_ressource.c (readfile.c verwenden)
-		//		-> Datei existiert nicht -> Fehler 404
-		//		-> Datei existiert -> Response mit Status 200 und Inhalt der Datei
-		//liefert responsestruct mit: http-status-code, http-status-message, content (text, zeit, etc.)
-
-//    sample response
-//    HTTP/1.1 200 OK
-//    Server: nginx/1.7.4
-//    Date: Mon, 30 Mar 2015 13:34:10 GMT
-//    Content-Type: text/html; charset=UTF-8
-//    Connection: close
-	//Test-Response, das wird später nicht mehr benötigt
-//    time_t now;
-//    time(&now);
-//	char str_utc_time[sizeof "0000-00-00T00:00:00Z"];
-//    strftime(str_utc_time, sizeof str_utc_time, "%FT%TZ", gmtime(&now));
-//	char *response_tpl = "HTTP/1.0 200 OK\r\nConnection: close\r\n\r\n<html style=\"font-size:30pt;\">Hello World<br/>%s</html>\r\n";
-//	response = realloc(response, strlen(str_utc_time) + strlen(response_tpl) + 1);
-//	sprintf(response, response_tpl, str_utc_time);
-//	printf("%s\n",response);
-
-	//Ein Beispielresponse...
-	response_data = malloc(sizeof(response_t));
-	response_data->status_code = 200;
-	char *status_message = "OK";
-	response_data->status_message = malloc(strlen(status_message)+1);
-	strcpy(response_data->status_message, status_message);
-	char *content = "Hello World";
-	response_data->content = malloc(strlen(content)+1);
-	strcpy(response_data->content, content);
+	response_data = process_request(parsed_request);
 
 	//Reponse String bauen und senden
-	response_str = build_http_response_str(response_data); //heap pointer
-	send_response(response_str, client_sock);
+	send_response(response_data, client_sock);
 
     // Verbindung schliessen
     if (-1 == close(client_sock)) { perror("Error closing client socket.\n"); }
     else { printf("Connection closed.\n"); }
 
     //dyn. Speicher freigeben
-    //todo: für die structs entsprechende Funktionen zum Freigeben anlegen (da wo sie definiert sind) und hier dann aufrufen
     free_parsed_request(parsed_request); parsed_request = NULL;
     free(request_str); request_str = NULL;
     free_response_t(response_data); response_data = NULL;
-    free(response_str); response_str = NULL;
 }
 
 /**
@@ -180,11 +141,15 @@ static char *receive_request(const int client_sock) {
 }
 
 /**
- * Sendet eine Nachricht an den Client
+ * Sendet die HTTP-Antwort an den Client
  */
-void send_response(const char *response, const int client_sock) {
-    printf("Sending '%s' (%i) to Client\n", response, (int)strlen(response));
-	if (send(client_sock, response, strlen(response), 0) != strlen(response)) {
+static void send_response(const response_t *response_data, const int client_sock) {
+	char *response_str = build_http_response_str(response_data); //heap pointer
+
+    printf("Sending '%s' (%i) to Client\n", response_str, (int)strlen(response_str));
+	if (send(client_sock, response_str, strlen(response_str), 0) != strlen(response_str)) {
 		perror("Failed to send data to client\n");
 	}
+
+	free(response_str); response_str = NULL;
 }
