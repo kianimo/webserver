@@ -9,6 +9,8 @@
 #define HTTP_REQUEST_H_
 
 #include <stdlib.h>
+#include <stdio.h>
+
 #include "http_parser.h"
 
 typedef struct parsed_request_t

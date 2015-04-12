@@ -30,6 +30,12 @@ int request_url_cb(http_parser *p, const char *buf, size_t len)
 {
 	char *request_url = malloc(len + 1);
 
+	if(request_url == NULL)
+	{
+		perror("Memory allocation for \"request_url\" failed");
+		exit(EXIT_FAILURE);
+	}
+
 	strncpy(request_url, buf, len);
 	request_url[len] = '\0';
 
