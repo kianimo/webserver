@@ -13,9 +13,9 @@ parsed_request_t *parse_request(char* request)
 	//struktur in der die Callbacks ihre Daten ablegen
 	parsed_request = malloc(sizeof(parsed_request));
 
-	if(parsed_request == NULL)
+	if(NULL == parsed_request)
 	{
-		perror("Memory allocation for \"request_url\" failed");
+		perror("Memory allocation for \"parsed_request\" failed");
 		exit(EXIT_FAILURE);
 	}
 
@@ -38,7 +38,7 @@ parsed_request_t *parse_request(char* request)
 
 void free_parsed_request(parsed_request_t *parsed_request)
 {
-	if(parsed_request->request_url != NULL)
+	if(NULL != parsed_request->request_url)
 	{
 		free(parsed_request->request_url);
 	}
