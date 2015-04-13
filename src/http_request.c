@@ -13,12 +13,23 @@ parsed_request_t *parse_request(char* request)
 	//struktur in der die Callbacks ihre Daten ablegen
 	parsed_request = malloc(sizeof(parsed_request));
 
+	if(NULL == parsed_request)
+	{
+		perror("Memory allocation for \"parsed_request\" failed");
+		exit(EXIT_FAILURE);
+	}
+
 	http_parser_settings settings = get_http_parser_callbacks();
 
 	http_parser parser;
 	http_parser_init(&parser, HTTP_REQUEST);
 
-	http_parser_execute(&parser, &settings, request, strlen(request)+1);
+	http_parser_execute(&parser, &settings, request, strlen(request));
+
+	if(parser.http_errno != 0)
+	{
+		fprintf(stderr, "Error while parsing. http_errno: %i\n", parser.http_errno);
+	}
 
 	parsed_request->method = parser.method;
 
@@ -27,9 +38,14 @@ parsed_request_t *parse_request(char* request)
 
 void free_parsed_request(parsed_request_t *parsed_request)
 {
-	if(parsed_request->request_url != NULL)
+	if(NULL != parsed_request->request_url)
 	{
 		free(parsed_request->request_url);
+	}
+
+	if(NULL != parsed_request->accepted_content_types)
+	{
+		free(parsed_request->accepted_content_types);
 	}
 
 	free(parsed_request);
