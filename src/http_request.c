@@ -43,6 +43,11 @@ void free_parsed_request(parsed_request_t *parsed_request)
 		free(parsed_request->request_url);
 	}
 
+	if(NULL != parsed_request->accepted_content_types)
+	{
+		free(parsed_request->accepted_content_types);
+	}
+
 	free(parsed_request);
 }
 

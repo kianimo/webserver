@@ -16,6 +16,7 @@
 typedef struct parsed_request_t
 {
 		enum http_method method;
+		char *accepted_content_types;
 		char *request_url;
 		//char *host;
 } parsed_request_t;
