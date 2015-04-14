@@ -77,7 +77,7 @@ int header_value_cb(http_parser *p, const char *buf, size_t len)
 
 		if(NULL == content_types)
 		{
-			perror("Memory allocation for \"request_url\" failed");
+			perror("Memory allocation for \"accepted_content_types\" failed");
 			exit(EXIT_FAILURE);
 		}
 
