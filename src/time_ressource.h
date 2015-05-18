@@ -3,5 +3,6 @@
 
 char * getUTCtimeJSON();
 char * getUTCtimeHTML();
+char * getUTC_time_Text();
 
 #endif /*_TIME_RESSOURCE_H_*/

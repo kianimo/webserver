@@ -34,3 +34,14 @@ char * getUTCtimeHTML()
 															locT.tm_min, locT.tm_sec);
 	return htmlDate;
 }
+char * getUTC_time_Text(){
+	char *text_Date = malloc(UTC_TIME_SIZE);
+	time_t t;
+	time(&t);
+
+	struct tm locT = *localtime(&t);
+    sprintf(text_Date,"The time is :%d-%d-%dT%d:%d:%dZ", locT.tm_year,locT.tm_mon,
+			                                            locT.tm_wday, locT.tm_hour,
+			                                            locT.tm_min, locT.tm_sec);
+    return text_Date;
+}

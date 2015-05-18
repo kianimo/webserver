@@ -3,6 +3,7 @@
 
 #include "http_request_processor.h"
 #include "readfile.h"
+#include "time_ressource.h"
 
 /**
  * Liefert zu geparsten HTTP-Requests die passenden Response-Daten
@@ -34,8 +35,11 @@ response_t *process_request(const parsed_request_t * request) {
 	//    strftime(str_utc_time, sizeof str_utc_time, "%FT%TZ", gmtime(&now));
 	if(strstr(request->request_url, UTC_TIME_PATH) == request->request_url) {
 		char *request_url_utc_type = request->request_url + strlen(UTC_TIME_PATH);
-		if(strstr(request_url_utc_type, "plain/\0") == request_url_utc_type) {
-			return create_http_response_t(HTTP_STATUS_OK, "plain zeit");
+		printf("Request url utc type is %s\n", request_url_utc_type);
+//		if(strstr(request_url_utc_type, "plain/\0") == request_url_utc_type) {
+		if(strcmp("plain", request_url_utc_type)==0){
+//			char *response_time = strcat("plain zeit ist ", getUTCtimeHTML());
+			return create_http_response_t(HTTP_STATUS_OK, getUTC_time_Text());
 		}
 		else if(strstr(request_url_utc_type, "html/\0") == request_url_utc_type) {
 			return create_http_response_t(HTTP_STATUS_OK, "html zeit");

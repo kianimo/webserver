@@ -1,6 +1,6 @@
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
@@ -38,7 +38,7 @@ int serve_http(void) {
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = htons(INADDR_ANY);
-	server_addr.sin_port = htons(80);
+	server_addr.sin_port = htons(7800);
 	if (-1 == bind(server_sock, (struct sockaddr *) &server_addr, sizeof(server_addr))) {
 		perror("Error binding socket");
 		exit(EXIT_FAILURE);
